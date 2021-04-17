@@ -63,4 +63,12 @@ driver.instance_eval do
   Fill '#pass', with: 'passw0rd'
   Click 'button[data-testid=royal_login_button]'
 end
+
+driver = Ptera::Driver.new(session: session, sleep_type: :short)
+driver.instance_eval do
+  Visit 'https://developers.google.com/speed/pagespeed/insights/?hl=JA'
+  Fill 'input[name=url]', with: 'https://www.google.com/'
+  Click 'div.main-submit'
+  Find 'div.lh-gauge__percentage', wait: 20
+end
 ```

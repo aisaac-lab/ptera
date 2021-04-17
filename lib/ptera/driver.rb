@@ -4,8 +4,9 @@ require 'colorize'
 
 module Ptera
   class Driver
-    def initialize(session:)
-      @session = session
+    def initialize(session:, sleep_type: :long)
+      @session    = session
+      @sleep_type = sleep_type
     end
 
     def Visit(url, ensure_has: nil)
@@ -26,7 +27,7 @@ module Ptera
       execute_sleep
     end
 
-    private def Find(*args, **options)
+    def Find(*args, **options)
       retry_count = options.delete(:retry_count) || 0
       maybe = options.delete(:maybe) || false
       current_try = 0
@@ -124,21 +125,14 @@ module Ptera
       end
     end
 
-    def WaitFor(wait_time = Capybara.default_max_wait_time, &block)
-      Timeout.timeout(wait_time) do
-        begin
-          block.call
-        rescue
-          retry
-        end
-      end
-    end
-
     def execute_sleep
-      if ENV['SHORT_SLEEP'] == '1'
-        sleep (3 + (0...4).to_a.sample)
+      case @sleep_type
+      when :long
+        sleep(8 + (0...4).to_a.sample)
+      when :short
+        sleep(3 + (0...4).to_a.sample)
       else
-        sleep (8 + (0...4).to_a.sample)
+        raise "sleep_type is invalid"
       end
     end
 
