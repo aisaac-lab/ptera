@@ -41,3 +41,26 @@ The gem is available as open source under the terms of the [MIT License](https:/
 ## Code of Conduct
 
 Everyone interacting in the Ptera project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/gogotanaka/ptera/blob/master/CODE_OF_CONDUCT.md).
+
+
+```ruby
+require 'ptera'
+
+key = :placeholder
+
+Capybara.register_driver key do |app|
+  profile = Selenium::WebDriver::Firefox::Profile.new
+  profile['devtools.jsonview.enabled'] = false
+  options = Selenium::WebDriver::Firefox::Options.new(profile: profile)
+  Capybara::Selenium::Driver.new(app, options: options)
+end
+
+session = Capybara::Session.new(key)
+driver = Ptera::Driver.new(session: session)
+driver.instance_eval do
+  Visit 'https://www.facebook.com/'
+  Fill '#email', with: 'test@test.com'
+  Fill '#pass', with: 'passw0rd'
+  Click 'button[data-testid=royal_login_button]'
+end
+```
