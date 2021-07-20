@@ -34,41 +34,5 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/gogotanaka/ptera. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/gogotanaka/ptera/blob/master/CODE_OF_CONDUCT.md).
 
-## License
-
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
-
-## Code of Conduct
-
-Everyone interacting in the Ptera project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/gogotanaka/ptera/blob/master/CODE_OF_CONDUCT.md).
-
-
-```ruby
-require 'ptera'
-
-key = :placeholder
-
-Capybara.register_driver key do |app|
-  profile = Selenium::WebDriver::Firefox::Profile.new
-  profile['devtools.jsonview.enabled'] = false
-  options = Selenium::WebDriver::Firefox::Options.new(profile: profile)
-  Capybara::Selenium::Driver.new(app, options: options)
-end
-
-session = Capybara::Session.new(key)
-driver = Ptera::Driver.new(session: session)
-driver.instance_eval do
-  Visit 'https://www.facebook.com/'
-  Fill '#email', with: 'test@test.com'
-  Fill '#pass', with: 'passw0rd'
-  Click 'button[data-testid=royal_login_button]'
-end
-
-driver = Ptera::Driver.new(session: session, sleep_type: :short)
-driver.instance_eval do
-  Visit 'https://developers.google.com/speed/pagespeed/insights/?hl=JA'
-  Fill 'input[name=url]', with: 'https://www.google.com/'
-  Click 'div.main-submit'
-  Find 'div.lh-gauge__percentage', wait: 20
-end
-```
+# How
+bundle exec rspec

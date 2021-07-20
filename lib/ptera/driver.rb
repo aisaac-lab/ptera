@@ -4,9 +4,33 @@ require 'colorize'
 
 module Ptera
   class Driver
-    def initialize(session:, sleep_type: :long)
-      @session    = session
-      @sleep_type = sleep_type
+    attr_reader :session
+
+    def initialize(session:, sleep_type: :long, error_handler: ->(_ex){})
+      @session       = session
+      @sleep_type    = sleep_type
+      @error_handler = error_handler
+    end
+
+    def self.init(sleep_type: :long, error_handler: ->(_ex){}, &block)
+      key = SecureRandom.base64.delete('=+')
+      Capybara.register_driver key, &block
+      session = Capybara::Session.new(key)
+      self.new(session: session, sleep_type: sleep_type, error_handler: error_handler)
+    end
+
+    def execute(&block)
+      instance_eval(&block)
+    rescue Net::ReadTimeout => ex
+      puts "Retry!"
+      sleep 10
+      begin
+        instance_eval(&block)
+      rescue => ex
+        @error_handler.call(ex)
+      end
+    rescue => ex
+      @error_handler.call(ex)
     end
 
     def Visit(url, ensure_has: nil)
