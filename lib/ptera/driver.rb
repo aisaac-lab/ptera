@@ -6,13 +6,13 @@ module Ptera
   class Driver
     attr_reader :session
 
-    def initialize(session:, sleep_type: :long, error_handler: ->(_ex){})
+    def initialize(session:, sleep_type: :long, error_handler: ->(ex){ raise ex })
       @session       = session
       @sleep_type    = sleep_type
       @error_handler = error_handler
     end
 
-    def self.init(sleep_type: :long, error_handler: ->(_ex){}, &block)
+    def self.init(sleep_type: :long, error_handler: ->(ex){ raise ex }, &block)
       key = SecureRandom.base64.delete('=+')
       Capybara.register_driver key, &block
       session = Capybara::Session.new(key)
