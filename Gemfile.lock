@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    ptera (0.1.1)
+    ptera (0.1.3)
       capybara
       colorize
       rexml
@@ -27,7 +27,7 @@ GEM
     diff-lcs (1.4.4)
     method_source (1.0.0)
     mini_mime (1.1.0)
-    nokogiri (1.11.7-x86_64-darwin)
+    nokogiri (1.12.1-x86_64-darwin)
       racc (~> 1.4)
     parallel (1.20.1)
     parser (3.0.2.0)

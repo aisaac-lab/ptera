@@ -6,14 +6,7 @@ RSpec.describe Ptera do
   end
 
   example do
-    driver = Ptera::Driver.init(sleep_type: :short, error_handler: ->(ex) { raise ex }) do |app|
-      profile = Selenium::WebDriver::Firefox::Profile.new
-      profile['devtools.jsonview.enabled'] = false
-      options = Selenium::WebDriver::Firefox::Options.new(profile: profile)
-      options.headless!
-      profile["general.useragent.override"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15"
-      Capybara::Selenium::Driver.new(app, options: options)
-    end
+    driver = Ptera::Driver.init(sleep_type: :short, &Ptera::Driver::FIREFOX_NORMAL)
 
     $mock = nil
     driver.execute do
@@ -27,14 +20,11 @@ RSpec.describe Ptera do
   end
 
   example do
-    driver = Ptera::Driver.init(sleep_type: :short, error_handler: ->(ex) { expect(ex).to be_a(Net::ReadTimeout) }) do |app|
-      profile = Selenium::WebDriver::Firefox::Profile.new
-      profile['devtools.jsonview.enabled'] = false
-      options = Selenium::WebDriver::Firefox::Options.new(profile: profile)
-      options.headless!
-      profile["general.useragent.override"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15"
-      Capybara::Selenium::Driver.new(app, options: options)
-    end
+    driver = Ptera::Driver.init(
+      sleep_type: :short,
+      error_handler: ->(ex) { expect(ex).to be_a(Net::ReadTimeout) },
+      &Ptera::Driver::FIREFOX_HEADLESS
+    )
 
     driver.execute do
       raise Net::ReadTimeout
