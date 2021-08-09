@@ -2,8 +2,8 @@
 
 require_relative "ptera/version"
 require_relative "ptera/driver"
+require_relative "ptera/constants"
 
 module Ptera
   class Error < StandardError; end
-  # Your code goes here...
 end

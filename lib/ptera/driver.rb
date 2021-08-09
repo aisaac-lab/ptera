@@ -4,24 +4,6 @@ require 'colorize'
 
 module Ptera
   class Driver
-    FIREFOX_HEADLESS = proc { |app|
-      profile = Selenium::WebDriver::Firefox::Profile.new
-      profile['devtools.jsonview.enabled'] = false
-      options = Selenium::WebDriver::Firefox::Options.new(profile: profile)
-      options.headless!
-      # profile["general.useragent.override"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15"
-      Capybara::Selenium::Driver.new(app, options: options)
-    }
-
-    FIREFOX_NORMAL = proc { |app|
-      profile = Selenium::WebDriver::Firefox::Profile.new
-      profile['devtools.jsonview.enabled'] = false
-      options = Selenium::WebDriver::Firefox::Options.new(profile: profile)
-      # options.headless!
-      # profile["general.useragent.override"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15"
-      Capybara::Selenium::Driver.new(app, options: options)
-    }
-
     attr_reader :session
 
     def initialize(session:, sleep_type: :long, error_handler: ->(ex){ raise ex })

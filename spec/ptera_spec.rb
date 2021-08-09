@@ -6,7 +6,7 @@ RSpec.describe Ptera do
   end
 
   example do
-    driver = Ptera::Driver.init(sleep_type: :short, &Ptera::Driver::FIREFOX_NORMAL)
+    driver = Ptera::Driver.init(sleep_type: :short, &Ptera::FIREFOX_NORMAL)
 
     $mock = nil
     driver.execute do
@@ -23,7 +23,7 @@ RSpec.describe Ptera do
     driver = Ptera::Driver.init(
       sleep_type: :short,
       error_handler: ->(ex) { expect(ex).to be_a(Net::ReadTimeout) },
-      &Ptera::Driver::FIREFOX_HEADLESS
+      &Ptera::FIREFOX_HEADLESS
     )
 
     driver.execute do
