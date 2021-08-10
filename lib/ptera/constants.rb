@@ -45,4 +45,23 @@ module Ptera
       Capybara::Selenium::Driver.new(app, options: options)
     }
   }
+
+  FIREFOX_WITH_DOWNLOAD_HEADLESS = proc { |download_dir|
+    proc { |app|
+      profile = Selenium::WebDriver::Firefox::Profile.new
+      profile['devtools.jsonview.enabled'] = false
+
+      FileUtils.mkdir_p(download_dir)
+      profile['browser.download.dir'] = download_dir.to_s
+      profile['browser.download.folderList'] = 2
+      profile['browser.helperApps.alwaysAsk.force'] = false
+      profile['browser.download.manager.showWhenStarting'] = false
+      profile['browser.helperApps.neverAsk.saveToDisk'] = "text/csv"
+
+      options = Selenium::WebDriver::Firefox::Options.new(profile: profile)
+      options.headless!
+
+      Capybara::Selenium::Driver.new(app, options: options)
+    }
+  }
 end
