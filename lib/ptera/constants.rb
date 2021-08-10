@@ -27,7 +27,7 @@ module Ptera
     }
   }
 
-  FIREFOX_WITH_DOWNLOAD_HEADLESS = proc { |download_dir|
+  FIREFOX_WITH_DOWNLOAD = proc { |download_dir|
     proc { |app|
       profile = Selenium::WebDriver::Firefox::Profile.new
       profile['devtools.jsonview.enabled'] = false
