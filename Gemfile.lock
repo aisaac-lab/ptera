@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    ptera (0.1.5)
+    ptera (0.1.10)
       capybara
       colorize
       rexml

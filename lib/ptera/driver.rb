@@ -33,7 +33,7 @@ module Ptera
       @error_handler.call(ex)
     end
 
-    def Visit(url, ensure_has: nil)
+    def Visit(url, ensure_has: nil, max_retry_count: 3)
       encoded_url = Addressable::URI.encode(url)
 
       @session.visit encoded_url
@@ -43,7 +43,7 @@ module Ptera
         until Has? ensure_has
           @session.visit encoded_url
           try += 1
-          raise "error url: #{url}, ensure_has: #{ensure_has}" if try > 3
+          raise "error url: #{url}, ensure_has: #{ensure_has}" if max_retry_count < try
         end
       end
 
