@@ -1,31 +1,29 @@
 require 'capybara'
 require 'selenium-webdriver'
 require 'colorize'
+require_relative "methods"
 
 module Ptera
   class Driver
+    include Ptera::Methods
     attr_reader :session
 
-    def initialize(session:, sleep_type: :long, error_handler: ->(ex){ raise ex })
-      @session       = session
+    def initialize(sleep_type: :long, error_handler: ->(ex){ raise ex }, storage_path: '/tmp/ptera', &block)
+      key = SecureRandom.base64.delete('=+')
+      Capybara.register_driver(key, &block)
+      @session = Capybara::Session.new(key)
       @sleep_type    = sleep_type
       @error_handler = error_handler
+      @storage_path = Pathname.new(storage_path)
     end
-
-    def self.init(sleep_type: :long, error_handler: ->(ex){ raise ex }, &block)
-      key = SecureRandom.base64.delete('=+')
-      Capybara.register_driver key, &block
-      session = Capybara::Session.new(key)
-      self.new(session: session, sleep_type: sleep_type, error_handler: error_handler)
-    end
-
-    def execute(&block)
-      instance_eval(&block)
+  
+    def execute
+      yield(self)
     rescue Net::ReadTimeout => ex
       puts "Retry!"
       sleep 10
       begin
-        instance_eval(&block)
+        yield(self)
       rescue => ex
         @error_handler.call(ex)
       end
@@ -33,119 +31,12 @@ module Ptera
       @error_handler.call(ex)
     end
 
-    def Visit(url, ensure_has: nil, max_retry_count: 3)
-      encoded_url = Addressable::URI.encode(url)
-
-      @session.visit encoded_url
-
-      unless ensure_has.nil?
-        try = 0
-        until Has? ensure_has
-          @session.visit encoded_url
-          try += 1
-          raise "error url: #{url}, ensure_has: #{ensure_has}" if max_retry_count < try
-        end
-      end
-
-      logger __method__, url
-      execute_sleep
-    end
-
-    def Find(*args, **options)
-      retry_count = options.delete(:retry_count) || 0
-      maybe = options.delete(:maybe) || false
-      current_try = 0
-      element = nil
-
-      begin
-        current_try += 1
-        element = @session.find(*args, **options)
-        logger __method__, args.first
-      rescue Capybara::ElementNotFound => ex
-        unless maybe
-          if current_try <= retry_count
-            logger "RETRY(#{current_try}) #{__method__}", args.first
-            @session.refresh
-            sleep (7...18).to_a.sample
-            retry
-          end
-          raise ex
-        end
-      end
-
-      element
-    end
-
-    def Has?(*args, **option)
-      !!Find(*args, maybe: true, **option)
-    end
-
-    def Click(*args, **options)
-      Find(*args, **options).click
-
-      # begin
-      #   element.click
-      # rescue Selenium::WebDriver::Error::ElementNotInteractableError
-      #   element.evaluate_script('this.click()')
-      # end
-
-      logger __method__, args.first
-      execute_sleep
-    end
-
-    def ClickMaybe(*args, **options)
-      if @session.find_all(*args, **options).count == 1
-        Click(*args, **options)
-      else
-        logger __method__, "#{args.first} is not found"
-      end
-    end
-
-    def ScrollTo(kind)
-      case kind
-      when :top
-        @session.execute_script('window.scrollTo(0,0);')
-      when :bottom
-        def gaussian(mean, stddev)
-          theta = 2 * Math::PI * rand
-          rho = Math.sqrt(-2 * Math.log(1 - rand))
-          scale = stddev * rho
-          x = mean + scale * Math.cos(theta)
-          y = mean + scale * Math.sin(theta)
-          return x, y
-        end
-        height = @session.evaluate_script('document.body.scrollHeight')
-        new_height = gaussian(height - 1000, 1000).min.to_i
-        @session.execute_script("window.scrollTo(0,#{new_height});")
-      else
-        raise ''
-      end
-
-      logger __method__, "#{kind}: #{new_height}"
-      execute_sleep
-    end
-
-    def Fill(arg, with:, clear: true)
-      elm = Find(arg)
-      if clear
-        elm.native.clear
-        sleep 2
-      end
-      elm.native.send_key(with)
-
-      logger __method__, arg, with
-      execute_sleep
-    end
-
-    def Submit(arg)
-      @session.find(arg).native.submit()
-      logger __method__, arg
-      execute_sleep
-    end
-
-    def HasText? text
-      (!!Nokogiri::HTML.parse(@session.html).at("*:contains('#{text}')")).tap do |bool|
-        logger __method__, "#{text}=#{bool}"
+    def take_screenshot
+      now = Date.today
+      path = @storage_path + "#{now.year}/#{now.month}/#{now.day}"
+      FileUtils.mkdir_p(path)
+      "#{path}/#{SecureRandom.uuid}.png".tap do |file_path|
+        @session.driver.save_screenshot(file_path)
       end
     end
 
