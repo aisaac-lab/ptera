@@ -43,6 +43,10 @@ module Ptera
       element
     end
 
+    def find_all(*args, **options)
+      @session.find_all(*args, **options)
+    end
+
     def has?(*args, **option)
       !!find(*args, maybe: true, **option)
     end
