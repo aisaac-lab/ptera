@@ -8,13 +8,12 @@ module Ptera
     include Ptera::Methods
     attr_reader :session
 
-    def initialize(sleep_type: :long, error_handler: ->(ex){ raise ex }, storage_path: '/tmp/ptera', &block)
+    def initialize(sleep_type: :long, error_handler: ->(ex){ raise ex }, &block)
       key = SecureRandom.base64.delete('=+')
       Capybara.register_driver(key, &block)
       @session = Capybara::Session.new(key)
       @sleep_type    = sleep_type
       @error_handler = error_handler
-      @storage_path = Pathname.new(storage_path)
     end
   
     def execute
@@ -31,11 +30,9 @@ module Ptera
       @error_handler.call(ex)
     end
 
-    def take_screenshot
-      now = Date.today
-      path = @storage_path + "#{now.year}/#{now.month}/#{now.day}"
-      FileUtils.mkdir_p(path)
-      "#{path}/#{SecureRandom.uuid}.png".tap do |file_path|
+    def take_screenshot(folder_path)
+      FileUtils.mkdir_p(folder_path)
+      "#{folder_path}/#{SecureRandom.uuid}.png".tap do |file_path|
         @session.driver.save_screenshot(file_path)
       end
     end
