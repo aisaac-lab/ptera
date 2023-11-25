@@ -27,7 +27,7 @@ module Ptera
       begin
         current_try += 1
         element = @session.find(*args, **options)
-        logger __method__, args.first
+        logger __method__, (args.first == :xpath ? args[1] : args[0])
       rescue Capybara::ElementNotFound => ex
         unless maybe
           if current_try <= retry_count
@@ -41,6 +41,10 @@ module Ptera
       end
 
       element
+    end
+
+    def find_xpath(xpath_query, **options)
+      self.find(:xpath, xpath_query, **options)
     end
 
     def find_all(*args, **options)
