@@ -1,3 +1,9 @@
+class Capybara::Node::Element
+  def find_xpath(xpath_query, **options)
+    self.find(:xpath, xpath_query, **options)
+  end
+end
+
 module Ptera
   module Methods
     def visit(url, ensure_has: nil, max_retry_count: 3)
