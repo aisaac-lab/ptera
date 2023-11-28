@@ -18,14 +18,6 @@ module Ptera
   
     def execute
       yield(self)
-    rescue Net::ReadTimeout => ex
-      puts "Retry!"
-      sleep 10
-      begin
-        yield(self)
-      rescue => ex
-        @error_handler.call(ex)
-      end
     rescue => ex
       @error_handler.call(ex)
     end
