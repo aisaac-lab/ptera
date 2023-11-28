@@ -8,7 +8,7 @@ module Ptera
     include Ptera::Methods
     attr_reader :session
 
-    def initialize(sleep_type: :long, error_handler: ->(ex){ raise ex }, &block)
+    def initialize(sleep_type: :long, error_handler: ->(ex, _driver){ raise ex }, &block)
       key = SecureRandom.base64.delete('=+')
       Capybara.register_driver(key, &block)
       @session = Capybara::Session.new(key)
@@ -19,7 +19,7 @@ module Ptera
     def execute
       yield(self)
     rescue => ex
-      @error_handler.call(ex)
+      @error_handler.call(ex, self)
     end
 
     def take_screenshot(folder_path)
