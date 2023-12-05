@@ -20,6 +20,8 @@ module Ptera
       yield(self)
     rescue => ex
       @error_handler.call(ex, self)
+    ensure
+      @session.driver.quit
     end
 
     def take_screenshot(folder_path)

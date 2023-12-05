@@ -40,14 +40,10 @@ RSpec.describe Ptera do
   end
 
   example "3" do
-    driver = Ptera::Driver.new(
-      sleep_type: :short,
-      error_handler: ->(ex) { expect(ex).to be_a(Net::ReadTimeout) },
-      &Ptera::FIREFOX_HEADLESS
-    )
+    driver = Ptera::Driver.new(sleep_type: :short, &Ptera::FIREFOX_NORMAL)
 
-    driver.execute do
-      raise Net::ReadTimeout
+    driver.execute do |d|
+      d.visit 'https://www.google.com/'
     end
   end
 
