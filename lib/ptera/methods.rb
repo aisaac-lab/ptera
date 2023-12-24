@@ -81,22 +81,16 @@ module Ptera
       when :top
         @session.execute_script('window.scrollTo(0,0);')
       when :bottom
-        def gaussian(mean, stddev)
-          theta = 2 * Math::PI * rand
-          rho = Math.sqrt(-2 * Math.log(1 - rand))
-          scale = stddev * rho
-          x = mean + scale * Math.cos(theta)
-          y = mean + scale * Math.sin(theta)
-          return x, y
-        end
         height = @session.evaluate_script('document.body.scrollHeight')
-        new_height = gaussian(height - 1000, 1000).min.to_i
-        @session.execute_script("window.scrollTo(0,#{new_height});")
+        @session.scroll_to(0, height)
+
+        height = @session.evaluate_script('document.body.scrollHeight')
+        @session.scroll_to(0, height)
       else
         raise ''
       end
 
-      logger __method__, "#{kind}: #{new_height}"
+      logger __method__, "#{kind}: #{height}"
       execute_sleep
     end
 
